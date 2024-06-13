@@ -47,12 +47,11 @@ def should_swap_neighbour(current_distance, neighbour_distance, temperature):
     return rand < benchmark
 
 
-def lower_temperature(temperature):
-    return temperature / 2
+
 
 
 class Annealing:
-    def __init__(self, vertices_list, max_freeze, initial_temperature):
+    def __init__(self, vertices_list, max_freeze, initial_temperature, temperature_divisor):
         # list of vertices (corresponding to cities in tsp problem)
         self.vertices_list = vertices_list
         # best path
@@ -66,6 +65,10 @@ class Annealing:
         self.max_freeze = max_freeze
         # hyperparameter - initial temperature
         self.initial_temperature = initial_temperature
+        # hyperparameter - determines the rate how quickly the temperature decreases towards 0
+        if temperature_divisor <= 1:
+            raise ValueError("Temperature divisor has to be greater than 1")
+        self.temperature_divisor = temperature_divisor
 
         # start the algorithm
         self.search()
@@ -83,7 +86,7 @@ class Annealing:
         # start with initial temperature
         temperature = self.initial_temperature
         # iteratively find local best
-        while freeze_count < self.max_freeze or lower_temperature(temperature) == 0:
+        while freeze_count < self.max_freeze or self.lower_temperature(temperature) == 0:
 
             # compute neighbourhood of current best path under evaluation
             neighbourhood = generate_neighbourhood(current_path)
@@ -110,7 +113,10 @@ class Annealing:
                 # we increment freeze count, as no swap was performed during this iteration
                 freeze_count += 1
             # lower temperature at the end of the iteration
-            temperature = lower_temperature(temperature)
+            temperature = self.lower_temperature(temperature)
+
+    def lower_temperature(self, temperature):
+        return temperature / self.temperature_divisor
 
     def random_order(self):
         shuffled = self.vertices_list[:]
