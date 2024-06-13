@@ -10,7 +10,7 @@ def display_results(alg):
         print("")
 
     print("\nLocally optimal sequence:")
-    for vertex in alg.current_path:
+    for vertex in alg.best_path:
         print(vertex.name, end=", ")
 
     print("\n\nThe distance of the locally optimal sequence:")
@@ -25,5 +25,5 @@ max_freeze = len(vertices)
 # initial temperature dependent on data size
 initial_temperature = 5 * len(vertices)
 
-algorithm = Annealing(vertices, 30, 200)
+algorithm = Annealing(vertices, 50, 50)
 display_results(algorithm)

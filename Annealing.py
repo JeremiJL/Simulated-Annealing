@@ -56,7 +56,7 @@ class Annealing:
         # list of vertices (corresponding to cities in tsp problem)
         self.vertices_list = vertices_list
         # best path
-        self.current_path = []
+        self.best_path = []
         # searched paths
         self.searched_paths = []
         # best path summed distance
@@ -71,31 +71,40 @@ class Annealing:
         self.search()
 
     def search(self):
+        # assign the randomly chosen sequence as initial path
+        current_path = self.random_order()
+        current_distance = compute_distance(current_path)
         # assign best distance and best path to initial, random choice as first step
-        self.current_path = self.random_order()
-        self.best_distance = compute_distance(self.current_path)
+        self.best_path = current_path
+        self.best_distance = compute_distance(self.best_path)
 
         # keep count of iterations during which the current sequence have not changed
         freeze_count = 0
         # start with initial temperature
         temperature = self.initial_temperature
         # iteratively find local best
-        while freeze_count < self.max_freeze:
+        while freeze_count < self.max_freeze or lower_temperature(temperature) == 0:
+
             # compute neighbourhood of current best path under evaluation
-            neighbourhood = generate_neighbourhood(self.current_path)
+            neighbourhood = generate_neighbourhood(current_path)
             random_neighbour = pick_random_neighbour(neighbourhood)
             random_neighbour_distance = compute_distance(random_neighbour)
             # save random neighbour to searched neighbours history
             self.searched_paths.append(random_neighbour)
-            # swap if neighbour has better value of cost function
-            # or the probability function based on temperature returns True
-            # uses lazy evaluation
-            if (random_neighbour_distance < self.best_distance or
-                    should_swap_neighbour(self.best_distance, random_neighbour_distance, temperature)):
-                # we swap current best path for the new best one
-                self.current_path = random_neighbour
-                self.best_distance = random_neighbour_distance
-                # we refresh freeze count
+
+            # swap the currently evaluated sequence if neighbour has better value of cost function
+            # also update the best known value so far
+            if random_neighbour_distance < self.best_distance:
+                current_path = self.best_path = random_neighbour
+                current_distance = self.best_distance = random_neighbour_distance
+                # refresh freeze count
+                freeze_count = 0
+            # swap the currently evaluated sequence with neighbour with some probability dependent on temperature
+
+            elif should_swap_neighbour(current_distance, random_neighbour_distance, temperature):
+                current_path = random_neighbour
+                current_distance = random_neighbour_distance
+                # refresh freeze count
                 freeze_count = 0
             else:
                 # we increment freeze count, as no swap was performed during this iteration
