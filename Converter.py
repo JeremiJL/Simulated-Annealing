@@ -10,7 +10,7 @@ def convert_adjacency_matrix_to_vertices(file):
             lines.append(line)
     # create empty vertices
     for i in range(0, len(lines)):
-        vertices.append(Vertex(name="Vertex " + str(i)))
+        vertices.append(Vertex(name="vertex " + str(i)))
     # assign distance dictionaries to created vertices
     for line, i in zip(lines, range(0, len(lines))):
         current = vertices[i]

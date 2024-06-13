@@ -85,6 +85,8 @@ class Annealing:
             neighbourhood = generate_neighbourhood(self.current_path)
             random_neighbour = pick_random_neighbour(neighbourhood)
             random_neighbour_distance = compute_distance(random_neighbour)
+            # save random neighbour to searched neighbours history
+            self.searched_paths.append(random_neighbour)
             # swap if neighbour has better value of cost function
             # or the probability function based on temperature returns True
             # uses lazy evaluation
